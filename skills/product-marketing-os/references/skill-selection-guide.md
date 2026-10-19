@@ -21,6 +21,7 @@ doubt, an orchestrator (`product-marketing-os`) will route for you.
 | The one-page sales battlecard | `pmm-battlecard` | competitive-intelligence |
 | Respond NOW to a competitor's fresh move | `pmm-adaptive-messaging` | battlecard (that's evergreen) |
 | A us-vs-them / alternative comparison web page | `pmm-competitive-landing-page` | — |
+| Test a competitor's product hands-on, record it, file the evidence in PMM OS | `ci-competitor-walkthrough` | competitive-intelligence (that analyzes sources, it doesn't test) |
 
 ## Pricing
 

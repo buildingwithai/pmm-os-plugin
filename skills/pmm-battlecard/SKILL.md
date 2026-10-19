@@ -45,6 +45,7 @@ PMM OS is a chain, not a menu — don't dead-end at advice. Pass the work on:
 - [`pmm-sales-narrative`](../pmm-sales-narrative/SKILL.md) — fold win themes into the pitch
 - [`pmm-outreach`](../pmm-outreach/SKILL.md) — arm outbound with the objection handling
 - [`pmm-competitive-landing-page`](../pmm-competitive-landing-page/SKILL.md) — externalize the comparison
+- [`ci-competitor-walkthrough`](../ci-competitor-walkthrough/SKILL.md) — test the card's "claims needing verification" hands-on, on camera
 - [`pmm-coach`](../pmm-coach/SKILL.md) — review before anything customer- or exec-facing.
 
 ## Depth

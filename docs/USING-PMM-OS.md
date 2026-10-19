@@ -91,7 +91,7 @@ Everything else it will attempt from your repo and its research.
 The context template has a **Positioning → market category** field, and it's the highest-
 leverage thing you'll type. It sets the frame of reference for every downstream artifact:
 who you're compared against, what your price looks like, which objections you inherit.
-Get it wrong and 45 skills produce coherent, well-evidenced, wrongly-aimed work.
+Get it wrong and 46 skills produce coherent, well-evidenced, wrongly-aimed work.
 
 If you don't know it, say so — `pmm-positioning-exercise` derives it from competitive
 alternatives rather than making you guess.
@@ -177,7 +177,7 @@ node ~/.pmm-os/plugin/skills/pmm-launch-kit/scripts/build-kit.mjs <your-launch-f
 - **The coach genuinely disagrees.** In the self-run it read the source and overturned a
   factual claim the rest of the chain had inherited. That's the most valuable thing in the
   product and it is invisible until you get there.
-- **Skill choice is the real failure mode.** With 45 skills, the opening sentence decides a
+- **Skill choice is the real failure mode.** With 46 skills, the opening sentence decides a
   lot. If the run goes somewhere odd, name the skill explicitly and rerun.
 
 ## 6. Uninstalling
