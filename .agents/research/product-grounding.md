@@ -15,7 +15,7 @@ server. v3.0.3.
 
 | Capability | Status | Evidence |
 |---|---|---|
-| 45 skills, model-invoked, namespaced `/pmm-os:<skill>` | **shipped** | `skills/*/SKILL.md`, 45 dirs; validator asserts count |
+| 46 skills, model-invoked, namespaced `/pmm-os:<skill>` | **shipped** | `skills/*/SKILL.md`, 46 dirs; validator asserts count |
 | Framework library — ~75k lines across 9 domains | **shipped** | `skills/product-marketing-os/references/library/`, 74,710 lines |
 | 22 fill-in templates + 13 one-pager formats | **shipped** | `skills/product-marketing-os/assets/` (22), `references/one-pagers/` (13) |
 | Ten research desks | **shipped** | `references/research-desks/` — 10 files |

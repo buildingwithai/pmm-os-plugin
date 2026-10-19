@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "pmm-os",
-      "description": "Product marketing and GTM: positioning, messaging, personas, pricing, battlecards, competitive intel, and launch plans \u2014 45 skills plus an interactive launch kit.",
+      "description": "Product marketing and GTM: positioning, messaging, personas, pricing, battlecards, competitive intel, and launch plans \u2014 46 skills plus an interactive launch kit.",
       "source": "./",
       "version": "3.0.3"
     }

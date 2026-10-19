@@ -29,6 +29,7 @@ PMM OS is a chain, not a menu — don't dead-end at advice. Pass the work on:
 - [`pmm-battlecard`](../pmm-battlecard/SKILL.md) — turn intel into a sales-ready card
 - [`pmm-competitive-landing-page`](../pmm-competitive-landing-page/SKILL.md) — build the comparison page
 - [`pmm-adaptive-messaging`](../pmm-adaptive-messaging/SKILL.md) — respond fast to a competitor move
+- [`ci-competitor-walkthrough`](../ci-competitor-walkthrough/SKILL.md) — verify a competitor claim hands-on, with recorded proof in PMM OS
 - [`pmm-coach`](../pmm-coach/SKILL.md) — review before anything customer- or exec-facing.
 
 ## Depth

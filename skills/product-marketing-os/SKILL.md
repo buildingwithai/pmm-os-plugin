@@ -138,6 +138,7 @@ This plugin now includes additional PMM, GTM, coaching, campaign, and artifact-p
 | Product lifecycle, roadmap, PRD, prototype | product-lifecycle-os | prd-prototype-factory, pmm-go-to-market |
 | Post-launch impact, feedback, iteration | post-launch-learning-loop | post-launch-learning-loop, pmm-coach, plg-gtm-strategy |
 | Battlecard or competitive sales response | pmm-battlecard | pmm-adaptive-messaging, sales-enablement |
+| Hands-on competitor test, recorded walkthrough, PMM OS evidence | ci-competitor-walkthrough | pmm-battlecard, pmm-coach |
 | Positioning exercise | pmm-positioning-exercise | pmm-positioning-audit, pmm-messaging-hierarchy |
 | Competitive pricing analysis | pmm-pricing-analysis | pmm-pricing-packaging, plg-gtm-strategy |
 | ICP definition or scoring | pmm-icp-definition | gtm-icp-scoring, gtm-account-research |

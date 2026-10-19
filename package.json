@@ -1,7 +1,7 @@
 {
   "name": "pmm-os",
   "version": "3.0.3",
-  "description": "Product Marketing Operating System for Claude Code and Codex \u2014 45 PMM/GTM/PLG skills, two built-in research engines, and an interactive launch-kit generator. Install: npx pmm-os install",
+  "description": "Product Marketing Operating System for Claude Code and Codex \u2014 46 PMM/GTM/PLG skills, two built-in research engines, and an interactive launch-kit generator. Install: npx pmm-os install",
   "keywords": [
     "claude-code",
     "claude-code-plugin",
