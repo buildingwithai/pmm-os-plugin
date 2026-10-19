@@ -18,6 +18,7 @@ that workspace. If the user is removed from the organization, access stops on th
 
 | Tool | Input | Returns / use |
 |---|---|---|
+| `list_work` | `{}` | Start here. `workspace {name, productName}`, `competitors[] {id, name, website, kind}`, open `discoveries[]` (competitor searches that are queued or yours), all `suggestions[] {id, name, website, status}`, and open `jobs[]` that are queued or yours (last 3 checkpoints each). |
 | `search` | `{"query": "<text, max 500>"}` | Up to 50 `{id, kind, title, text}` with `kind` ∈ `competitor`, `evidence`, `battlecard`, `feature`. `""` lists everything, up to 50. Scenarios are **not** searchable. |
 | `get_feature_comparison` | `{"featureId", "scenarioId"}` | One row per competitor (our product included, `competitor.kind: "own_product"`), each with the `scenario`, its `observations`, and `outcome` `evidence_available` or `not_tested`. `INVALID` means the scenario does not belong to that feature. |
 | `get_assignment` | `{"id"}` | Job: `competitorId`, `scenarioId`, `brief`, `plan[]`, `state` (`queued`, `accepted`, `blocked`, `completed`, `cancelled`), `executorId`, `checkpoints[]`, `blocker`. |
@@ -45,9 +46,12 @@ Each write takes `operationKey` in addition to the fields listed.
 | `accept_job` | `id` | Executor role only. Only works on a `queued` job. |
 | `checkpoint_job` | `id`, `text`, `state` (`accepted`, `blocked`, `completed`), `blocker` | Only the assigned executor can call it. `blocker` is required: `""` unless `state` is `blocked`, when it must name the specific blocker. |
 | `cancel_job` | `id` | Keeps checkpoints and evidence. Use it only when the user asks. |
+| `accept_discovery` | `id` | Claims a `queued` competitor search. After that only you can add to it. |
+| `suggest_competitor` | `id` (max 155), `discoveryId`, `name`, `description`, `website`, `reason`, `sourceUrl` | Needs a search you accepted. `website` and `sourceUrl` are `https://…` or `""`; `name` and `reason` are non-empty. `CONFLICT` if the name or website host matches a competitor or any earlier suggestion, including dismissed ones. A person says yes (creates competitor `<id>` and battlecard `card-<id>`) or no in PMM OS. |
+| `complete_discovery` | `id`, `summary` | Closes a search you accepted. The summary says how you searched and what you found. |
 | `review_proposal` | — | **Never call it.** Approval belongs to a human reviewer. |
 
-**Not available over MCP:** creating competitors, features or scenarios; revising an observation;
+**Not available over MCP:** creating competitors directly (suggest them instead), features or scenarios; asking for or deciding on a competitor search; revising an observation;
 recording standalone claims or recommendations. If an observation you wrote is wrong, record a new,
 corrected observation and tell the user which one supersedes which. Give the user the exact
 values for anything that must be created in the dashboard.
@@ -55,7 +59,7 @@ values for anything that must be created in the dashboard.
 ## IDs and operation keys
 
 - Pattern `^[A-Za-z0-9][A-Za-z0-9:_-]*$`, up to 160 characters. That means letters, digits, `:`, `_` and `-`, with no spaces or dots.
-- Record IDs share **one namespace per workspace** (competitors, features, scenarios, observations, clips, proposals, jobs, battlecards). Make them unique and readable:
+- Record IDs share **one namespace per workspace** (competitors, features, scenarios, observations, clips, proposals, jobs, battlecards, competitor searches and suggestions). Make them unique and readable:
   - observation: `obs-<competitor>-<feature>-<yyyymmdd>-<n>`, e.g. `obs-acme-sso-20261019-1`
   - clip: `clip-<competitor>-<feature>-<yyyymmdd>-<n><letter>`, e.g. `clip-acme-sso-20261019-1a`
   - proposal: `prop-<competitor>-<yyyymmdd>-<n>`
@@ -70,8 +74,8 @@ values for anything that must be created in the dashboard.
 
 | Role | Can do here |
 |---|---|
-| `executor` | `accept_job`, `checkpoint_job`. It can call `record_observation`, the uploads, `annotate_clip` and `propose_update` **only** for a competitor and scenario of a job it has accepted (state `accepted` or `blocked`). It cannot call `build_test_plan`. |
-| `analyst` | `build_test_plan`, `record_observation`, the uploads, `annotate_clip`, `propose_update`. It cannot accept or checkpoint jobs. |
+| `executor` | `accept_job`, `checkpoint_job`, and the competitor search tools (`accept_discovery`, `suggest_competitor`, `complete_discovery`). It can call `record_observation`, the uploads, `annotate_clip` and `propose_update` **only** for a competitor and scenario of a job it has accepted (state `accepted` or `blocked`). It cannot call `build_test_plan`. |
+| `analyst` | `build_test_plan`, `record_observation`, the uploads, `annotate_clip`, `propose_update`, and the competitor search tools. It cannot accept or checkpoint jobs. |
 | `reviewer`, `admin` | Everything an analyst can do, plus `review_proposal`. This skill still never calls it. |
 | `viewer` | Read only. |
 

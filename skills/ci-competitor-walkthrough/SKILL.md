@@ -40,7 +40,7 @@ Run `pmm-record pause` before every hand-over and `pmm-record resume` after it.
 
 ## Preflight
 
-- **PMM OS MCP.** Confirm these tools exist: `search`, `get_assignment`, `get_feature_comparison`, `get_evidence`, `get_battlecard`, `record_observation`, `create_clip_upload`, `finish_clip_upload`, `annotate_clip`, `propose_update`, `get_proposal`. If they are missing, ask the user for the PMM OS host and workspace ID, then connect: `claude mcp add --transport http pmm-os "https://<host>/api/mcp?workspace=<workspace id>"`. For Codex, add the same URL as an HTTP MCP server in `~/.codex/config.toml`. The user completes the PMM OS sign-in once. Without MCP you can still do Steps 1 to 6 locally; report the uploads as pending.
+- **PMM OS MCP.** Confirm these tools exist: `list_work`, `search`, `get_assignment`, `get_feature_comparison`, `get_evidence`, `get_battlecard`, `record_observation`, `create_clip_upload`, `finish_clip_upload`, `annotate_clip`, `propose_update`, `get_proposal`. If they are missing, ask the user for the PMM OS host and workspace ID, then connect: `claude mcp add --transport http pmm-os "https://<host>/api/mcp?workspace=<workspace id>"`. For Codex, add the same URL as an HTTP MCP server in `~/.codex/config.toml`. The user completes the PMM OS sign-in once. Without MCP you can still do Steps 1 to 6 locally; report the uploads as pending.
 - **Recorder.** `pmm-record start preflight`, wait about 5 seconds, then `pmm-record stop`. The JSON must show one segment with `duration` > 0, real `width` and `height`, and `mime` `video/mp4`. Never upload this test file. If the check fails, stop: no recording means no test.
 - **Browser identity.** In Chromium, open the Google avatar and read the signed-in email. It must be the research account the user designated. If no account is signed in, or it is the wrong one, use takeover. Never type the password yourself.
 - **Disk.** Run `df -h ~` and keep several GB free. A full disk silently truncates a recording.
@@ -51,20 +51,23 @@ Run `pmm-record pause` before every hand-over and `pmm-record resume` after it.
 You need three inputs. Ask only for what you cannot find yourself.
 
 1. **Our product.** Its PMM OS record has `kind: "own_product"`. You can see it in the rows returned by `get_feature_comparison`.
-2. **Competitors.** Use the user's list. If there isn't one, discover candidates:
+2. **Competitors.** Use the user's list. If there isn't one, discover candidates. Start with `list_work`: it returns the workspace's `productName`, every known competitor, every earlier suggestion (with its `status`) and any open competitor search under `discoveries`.
    - `search` with `{"query": ""}` lists up to 50 competitors, features, battlecards and evidence records already in the workspace. Each result has a `kind`.
    - Search the web for "<our category> software", "<our product> alternatives" and "<leader> vs", plus G2/Capterra category pages and comparison pages. For a deeper sweep, run the Competitive Desk in [`pmm-research-desk`](../pmm-research-desk/SKILL.md).
-   - Propose 3 to 8 competitors, one line each: name, why buyers weigh it, source URL, and whether it is already in PMM OS. Ask the user to answer yes or no for each and to add any you missed. **Do no hands-on work on a competitor until the user confirms it.**
+   - **If `list_work` shows a queued competitor search,** the user asked for it in PMM OS. Claim it with `accept_discovery {"id": "<search id>", "operationKey": "accept:<search id>"}`, read its `brief`, then call `suggest_competitor` once per candidate (3 to 8): `id`, `discoveryId`, `name`, `description`, `website` (https or `""`), `reason` (why buyers weigh it) and `sourceUrl` (the https page that shows it, or `""`). The user says yes or no in PMM OS; a yes creates the competitor and its battlecard. Never re-suggest a name in `list_work.suggestions`: a dismissed one was a no. Finish with `complete_discovery {"id", "summary", "operationKey"}` saying how you searched.
+   - **Otherwise,** propose 3 to 8 competitors in chat, one line each: name, why buyers weigh it, source URL, and whether it is already in PMM OS. Ask the user to answer yes or no for each and to add any you missed.
+   - **Do no hands-on work on a competitor until the user confirms it.** In PMM OS, confirmed means it appears in `list_work.competitors`.
 3. **Features to test.** Use features the user names, features in PMM OS (`search` results with `kind: "feature"`), or entries from the Step 4 claims inventory. Each feature needs a PMM OS **scenario** with `plan`, `permissions`, `input` and `expected`.
 
 Read existing data first, so you neither repeat nor contradict earlier work:
 
+- **Without an assignment ID:** call `list_work`. Its `jobs` are the queued assignments and the ones you already hold.
 - **With an assignment ID:** call `get_assignment {"id": "<job id>"}`. It returns `competitorId`, `scenarioId`, `brief`, `plan[]` (whose lines carry the scenario's plan, permissions, input and expected result), `state`, `checkpoints` and `blocker`. If `state` is `queued` and you are the executor, claim it with `accept_job {"id": "<job id>", "operationKey": "accept:<job id>"}`.
 - `get_feature_comparison {"featureId": "...", "scenarioId": "..."}` returns one row per competitor, including our own product, with its existing observations or `not_tested`. This is your coverage table and your denominator.
 - Use `get_evidence {"id": "..."}` and `assess_evidence {"id": "..."}` on any existing observation you might extend or contradict.
 - `get_battlecard {"id": "card-<competitorId>"}` returns the current wording and `revision`. `card-<competitorId>` is the default ID; confirm it with `search`.
 
-**What MCP cannot create.** No MCP tool creates competitors, features or scenarios. If one is missing, give the user the exact values to create in the PMM OS dashboard: the competitor's name and https website; the feature's name and description; the scenario's name, mode, plan, permissions, input and expected result. Then carry on with the parts that don't depend on it. `build_test_plan` queues an assignment for an existing competitor and scenario; analyst, reviewer and admin roles can call it, but an executor cannot. For every field, ID rule, role and error code, see [references/pmm-os-mcp.md](references/pmm-os-mcp.md).
+**What MCP cannot create.** No MCP tool creates a competitor directly: suggest it through a competitor search and a person confirms it. No MCP tool creates features or scenarios. If one is missing, give the user the exact values to create in the PMM OS dashboard: the competitor's name and https website (when there is no open search); the feature's name and description; the scenario's name, mode, plan, permissions, input and expected result. Then carry on with the parts that don't depend on it. `build_test_plan` queues an assignment for an existing competitor and scenario; analyst, reviewer and admin roles can call it, but an executor cannot. For every field, ID rule, role and error code, see [references/pmm-os-mcp.md](references/pmm-os-mcp.md).
 
 ## Step 2: Terms-of-service check, before any signup
 
