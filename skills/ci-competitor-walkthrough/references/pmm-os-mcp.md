@@ -18,7 +18,7 @@ that workspace. If the user is removed from the organization, access stops on th
 
 | Tool | Input | Returns / use |
 |---|---|---|
-| `list_work` | `{}` | Start here. `workspace {name, productName}`, `competitors[] {id, name, website, kind}`, open `discoveries[]` (competitor searches that are queued or yours), all `suggestions[] {id, name, website, status}`, and open `jobs[]` that are queued or yours (last 3 checkpoints each). |
+| `list_work` | `{}` | Start here. `workspace {name, productName}`, `competitors[] {id, name, website, kind}`, `features[] {id, name}`, `scenarios[]` (every field: `id`, `featureId`, `name`, `mode`, `plan`, `permissions`, `input`, `expected`), open `discoveries[]` (competitor searches that are queued or yours), all `suggestions[] {id, name, website, status}`, and open `jobs[]` that are queued or yours (last 3 checkpoints each). |
 | `search` | `{"query": "<text, max 500>"}` | Up to 50 `{id, kind, title, text}` with `kind` ∈ `competitor`, `evidence`, `battlecard`, `feature`. `""` lists everything, up to 50. Scenarios are **not** searchable. |
 | `get_feature_comparison` | `{"featureId", "scenarioId"}` | One row per competitor (our product included, `competitor.kind: "own_product"`), each with the `scenario`, its `observations`, and `outcome` `evidence_available` or `not_tested`. `INVALID` means the scenario does not belong to that feature. |
 | `get_assignment` | `{"id"}` | Job: `competitorId`, `scenarioId`, `brief`, `plan[]`, `state` (`queued`, `accepted`, `blocked`, `completed`, `cancelled`), `executorId`, `checkpoints[]`, `blocker`. |
@@ -27,8 +27,8 @@ that workspace. If the user is removed from the organization, access stops on th
 | `get_battlecard` | `{"id"}` | `content {talkingPoint, objection, limitations}`, `revision`, `observationIds`, `evidenceRevisions`, `stale`, `history`, `supportingEvidence`. |
 | `get_proposal` | `{"id"}` | `before`, `after`, `baseRevision`, `status` (`pending`, `approved`, `rejected`), `rationale`, `supportingEvidence`. |
 
-Scenario IDs come from an assignment (`get_assignment`), from existing evidence (`get_evidence`
-returns `scenario`), or from the user.
+Scenario IDs come from `list_work` (every scenario), an assignment (`get_assignment`), or existing
+evidence (`get_evidence` returns `scenario`).
 
 ## Write tools
 

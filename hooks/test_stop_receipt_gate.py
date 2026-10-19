@@ -27,7 +27,7 @@ def receipt(verdict, minutes_ago=1, **extra):
                  "fix": "Top up SCRAPECREATORS_API_KEY"}], **extra}
 
 
-def run(message, rec):
+def run(message, rec, before=()):
     saved = RECEIPT.read_text() if RECEIPT.exists() else None
     RECEIPT.parent.mkdir(parents=True, exist_ok=True)
     try:
@@ -36,6 +36,8 @@ def run(message, rec):
         else:
             RECEIPT.write_text(json.dumps(rec))
         with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False) as fh:
+            for entry in before:
+                fh.write(json.dumps(entry) + "\n")
             fh.write(json.dumps({"type": "assistant",
                                  "message": {"content": [{"type": "text", "text": message}]}}))
             tpath = fh.name
@@ -71,11 +73,25 @@ CASES = [
     ("code change + DEGRADED receipt", "Fixed the off-by-one in parse().", receipt("DEGRADED"), False),
 ]
 
+# The walkthrough skill reports what it recorded. The marketing-field QA must not make it
+# pad that report with positioning or proof it never observed; other answers keep the QA.
+WALKTHROUGH_REPORT = ("Recorded the PitchMeAI observation, uploaded the original clip and drafted a "
+                      "battlecard proposal for the competitor. A human reviewer must approve it.")
+SKILL_CALL = {"type": "assistant", "message": {"content": [
+    {"type": "tool_use", "id": "t1", "name": "Skill",
+     "input": {"skill": "pmm-os:ci-competitor-walkthrough"}}]}}
+TOPIC_CASES = [
+    ("walkthrough report after the skill loaded", WALKTHROUGH_REPORT, (SKILL_CALL,), False),
+    ("same report without the skill", WALKTHROUGH_REPORT, (), True),
+]
+
 
 def main() -> int:
     failures = []
-    for label, msg, rec, should_block in CASES:
-        out = run(msg, rec)
+    cases = [(label, msg, rec, (), block) for label, msg, rec, block in CASES]
+    cases += [(label, msg, None, before, block) for label, msg, before, block in TOPIC_CASES]
+    for label, msg, rec, before, should_block in cases:
+        out = run(msg, rec, before)
         blocked = out.get("decision") == "block"
         if blocked != should_block:
             failures.append(f"  {label}: expected {'BLOCK' if should_block else 'allow'}, "
@@ -91,7 +107,7 @@ def main() -> int:
         print(f"✗ {len(failures)} failed:")
         print("\n".join(failures))
         return 1
-    print(f"✓ all {len(CASES)} receipt-gate cases pass, and the block is actionable")
+    print(f"✓ all {len(cases)} Stop-gate cases pass, and the block is actionable")
     return 0
 
 

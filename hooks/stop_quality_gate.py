@@ -81,6 +81,41 @@ def _last_message_from_transcript(event: dict) -> str:
     return ""
 
 
+def _walkthrough_run(event: dict) -> bool:
+    """True when this session loaded the ci-competitor-walkthrough skill.
+
+    That skill records evidence and reports what ran, in its own report format.
+    Its reports name competitors and a human reviewer, so the marketing-field and
+    coach checks below would push it to add positioning or proof it never observed,
+    which its own rules forbid.
+    """
+    path = event.get("transcript_path")
+    if not path:
+        return False
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.readlines()
+    except OSError:
+        return False
+    for line in lines:
+        if "ci-competitor-walkthrough" not in line:
+            continue
+        try:
+            entry = json.loads(line)
+        except ValueError:
+            continue
+        content = (entry.get("message") or {}).get("content") or []
+        for c in content if isinstance(content, list) else []:
+            if (
+                isinstance(c, dict)
+                and c.get("type") == "tool_use"
+                and c.get("name") == "Skill"
+                and str((c.get("input") or {}).get("skill", "")).endswith("ci-competitor-walkthrough")
+            ):
+                return True
+    return False
+
+
 RESEARCH_CLAIM = re.compile(
     r"research (?:complete|done|finished)|Research quality|"
     r"sources?\s*(?:searched|queried|covered)|"
@@ -180,6 +215,9 @@ def main() -> None:
                     }))
                     return
                 break
+
+    if _walkthrough_run(event):
+        return
 
     if re.search(COACH_TRIGGERS, combined) and "pmm coach" not in lower and "coach review" not in lower:
         print(json.dumps({
