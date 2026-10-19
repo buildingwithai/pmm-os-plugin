@@ -142,7 +142,8 @@ records evidence at that revision.
 
 ## Executor scope
 
-If you act as an executor, every observation, upload, annotation and proposal must be for the
-competitor and scenario of a job you have accepted (state `accepted` or `blocked`). Anything else
-returns `FORBIDDEN`. Ask the user to queue the job (`build_test_plan` by an analyst) instead of
-working around it.
+If you act as an executor, every observation, upload, annotation and proposal must be covered by a
+job you have accepted (state `accepted` or `blocked`): its competitor and scenario for a
+`walkthrough`, any scenario of its competitor for a `feature_comparison`. Anything else returns
+`FORBIDDEN`. Ask the user to queue the job (`start_walkthrough` or `start_feature_comparison` by an
+analyst) instead of working around it.

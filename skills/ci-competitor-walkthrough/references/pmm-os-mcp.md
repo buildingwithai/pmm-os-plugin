@@ -18,10 +18,11 @@ that workspace. If the user is removed from the organization, access stops on th
 
 | Tool | Input | Returns / use |
 |---|---|---|
-| `list_work` | `{}` | Start here. `workspace {name, productName}`, `competitors[] {id, name, website, kind}`, `features[] {id, name}`, `scenarios[]` (every field: `id`, `featureId`, `name`, `mode`, `plan`, `permissions`, `input`, `expected`), open `discoveries[]` (competitor searches that are queued or yours), all `suggestions[] {id, name, website, status}`, and open `jobs[]` that are queued or yours (last 3 checkpoints each). |
+| `list_work` | `{}` | Start here. `workspace {name, productName}`, `competitors[] {id, name, website, kind}`, `features[] {id, name}`, `scenarios[]` (every field: `id`, `featureId`, `name`, `mode`, `plan`, `permissions`, `input`, `expected`), open `discoveries[]` (competitor searches that are queued or yours), all `suggestions[] {id, name, website, status}`, and open `jobs[]` that are queued or yours (last 3 checkpoints each). Each job has a `kind`: `walkthrough`, `signup` or `feature_comparison`. |
 | `search` | `{"query": "<text, max 500>"}` | Up to 50 `{id, kind, title, text}` with `kind` ∈ `competitor`, `evidence`, `battlecard`, `feature`. `""` lists everything, up to 50. Scenarios are **not** searchable. |
 | `get_feature_comparison` | `{"featureId", "scenarioId"}` | One row per competitor (our product included, `competitor.kind: "own_product"`), each with the `scenario`, its `observations`, and `outcome` `evidence_available` or `not_tested`. `INVALID` means the scenario does not belong to that feature. |
-| `get_assignment` | `{"id"}` | Job: `competitorId`, `scenarioId`, `brief`, `plan[]`, `state` (`queued`, `accepted`, `blocked`, `completed`, `cancelled`), `executorId`, `checkpoints[]`, `blocker`. |
+| `get_assignment` | `{"id"}` | Job: `kind` (missing on old jobs, which are walkthroughs), `competitorId`, `scenarioId` (`null` for `signup` and `feature_comparison`), `brief`, `plan[]`, `state` (`queued`, `accepted`, `blocked`, `completed`, `cancelled`), `executorId`, `checkpoints[]`, `blocker`, `summary`. |
+| `check_job` | `{"id"}` | For a job or competitor search id: its `kind`, `state`, whether it was `accepted`, the last 10 `checkpoints`, `blocker`, result `summary`, its `evidence` (observations and recording counts), pending `proposals`, and app `links`. For a search: its `suggestions` with their `status`. |
 | `get_evidence` | `{"id", "revision"?}` | The observation at that revision, plus its `scenario` (plan, permissions, input, expected), `competitor` and `clips` with annotations. |
 | `assess_evidence` | `{"id", "revision"?}` | `outcome`, `summary`, `limits[]` (adds "capture date unknown" and "no original recording"). `supportsGeneralAccuracy` is always `false`. |
 | `get_battlecard` | `{"id"}` | `content {talkingPoint, objection, limitations}`, `revision`, `observationIds`, `evidenceRevisions`, `stale`, `history`, `supportingEvidence`. |
@@ -42,16 +43,33 @@ Each write takes `operationKey` in addition to the fields listed.
 | `attach_clip` | `uploadId`, `operationKey` | Recovery only, for a receipt from this same actor and workspace whose attach did not complete. It never takes URLs or file paths. |
 | `annotate_clip` | `clipId`, `annotation: {id, start, end, text, kind, x, y, width?, height?}` | See "Annotation schema" below. Each call creates a new evidence revision. |
 | `propose_update` | `id`, `battlecardId`, `baseRevision`, `after: {talkingPoint, objection, limitations}`, `observationIds` (1 to 50), `rationale` | All three `after` keys are required (each may be `""`). Every observation must belong to the card's competitor. |
-| `build_test_plan` | `id`, `competitorId`, `scenarioId`, `brief` | Queues a job. It does not start anyone or anything. Analyst, reviewer and admin roles can call it; an executor cannot. |
 | `accept_job` | `id` | Executor role only. Only works on a `queued` job. |
-| `checkpoint_job` | `id`, `text`, `state` (`accepted`, `blocked`, `completed`), `blocker` | Only the assigned executor can call it. `blocker` is required: `""` unless `state` is `blocked`, when it must name the specific blocker. |
+| `checkpoint_job` | `id`, `text`, `state` (`accepted`, `blocked`, `completed`), `blocker` | Only the assigned executor can call it. `blocker` is required: `""` unless `state` is `blocked`, when it must name the specific blocker. With `completed`, `text` becomes the job's result `summary`, which the person reads with `check_job`. |
 | `cancel_job` | `id` | Keeps checkpoints and evidence. Use it only when the user asks. |
 | `accept_discovery` | `id` | Claims a `queued` competitor search. After that only you can add to it. |
 | `suggest_competitor` | `id` (max 155), `discoveryId`, `name`, `description`, `website`, `reason`, `sourceUrl` | Needs a search you accepted. `website` and `sourceUrl` are `https://…` or `""`; `name` and `reason` are non-empty. `CONFLICT` if the name or website host matches a competitor or any earlier suggestion, including dismissed ones. A person says yes (creates competitor `<id>` and battlecard `card-<id>`) or no in PMM OS. |
 | `complete_discovery` | `id`, `summary` | Closes a search you accepted. The summary says how you searched and what you found. |
 | `review_proposal` | — | **Never call it.** Approval belongs to a human reviewer. |
 
-**Not available over MCP:** creating competitors directly (suggest them instead), features or scenarios; asking for or deciding on a competitor search; revising an observation;
+## Person tools (start work for the CI agent)
+
+For analysts, reviewers and admins working in Claude Code or ChatGPT. The workspace's CI agent does
+the work on its own computer; these only queue it and wake the agent. An executor gets `FORBIDDEN`.
+Each takes `operationKey`; new ids come from it (`signup-<operationKey>` and so on), so a retry replays.
+
+| Tool | Fields | Starts |
+|---|---|---|
+| `start_competitor_search` | `brief`? | A competitor search. Returns its id (`search-…`). |
+| `decide_competitor` | `suggestionId`, `decision` (`yes` or `no`) | Yes adds the competitor and its battlecard. No hides it for good. |
+| `cancel_competitor_search` | `searchId` | Stops an open search. Suggestions so far are kept. |
+| `start_signup` | `competitorId`, `brief`? | A `signup` job: terms check, then a free account with the research account. |
+| `start_feature_comparison` | `competitorId`, `brief`? | A `feature_comparison` job: promises, hands-on tests of every scenario a free plan allows, evidence and proposals. |
+| `start_walkthrough` | `competitorId`, `scenarioId`, `brief`? | A `walkthrough` job for one scenario, recorded. |
+
+One open job of each kind per competitor; a second returns `CONFLICT`. Our own product can't be the
+target. Follow any of them with `check_job`.
+
+**Not available over MCP:** creating competitors directly (suggest them instead), features or scenarios; revising an observation;
 recording standalone claims or recommendations. If an observation you wrote is wrong, record a new,
 corrected observation and tell the user which one supersedes which. Give the user the exact
 values for anything that must be created in the dashboard.
@@ -74,8 +92,8 @@ values for anything that must be created in the dashboard.
 
 | Role | Can do here |
 |---|---|
-| `executor` | `accept_job`, `checkpoint_job`, and the competitor search tools (`accept_discovery`, `suggest_competitor`, `complete_discovery`). It can call `record_observation`, the uploads, `annotate_clip` and `propose_update` **only** for a competitor and scenario of a job it has accepted (state `accepted` or `blocked`). It cannot call `build_test_plan`. |
-| `analyst` | `build_test_plan`, `record_observation`, the uploads, `annotate_clip`, `propose_update`, and the competitor search tools. It cannot accept or checkpoint jobs. |
+| `executor` | `accept_job`, `checkpoint_job`, and the competitor search tools (`accept_discovery`, `suggest_competitor`, `complete_discovery`). It can call `record_observation`, the uploads, `annotate_clip` and `propose_update` **only** for a job it has accepted (state `accepted` or `blocked`): a `walkthrough` covers its one competitor and scenario, a `feature_comparison` covers every scenario for its competitor, and a `signup` covers no evidence at all. It cannot call the person tools. |
+| `analyst` | The person tools, `record_observation`, the uploads, `annotate_clip`, `propose_update`, and the competitor search tools. It cannot accept or checkpoint jobs. |
 | `reviewer`, `admin` | Everything an analyst can do, plus `review_proposal`. This skill still never calls it. |
 | `viewer` | Read only. |
 

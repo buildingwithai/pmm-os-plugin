@@ -14,6 +14,12 @@ evidence and exact proposed wording. You never decide what the battlecard says.
 This runs in Claude Code, Codex, or a Rakazo bot with its own Linux computer and Chromium. MCP
 tool names below are bare; your client may prefix them (for example `mcp__pmm-os__record_observation`).
 
+**If the user wants the workspace's CI agent to do it instead of you,** don't do the work yourself.
+Start it with `start_signup`, `start_feature_comparison`, `start_walkthrough` or
+`start_competitor_search`, give the user the returned id, and follow it with `check_job`. Answer
+competitor suggestions with `decide_competitor` only when the user says yes or no. See "Person
+tools" in [references/pmm-os-mcp.md](references/pmm-os-mcp.md).
+
 ## Non-negotiable rules
 
 1. **Terms before signup.** No account is created and no sign-in is attempted for a competitor until Step 2 has a recorded decision for it.
@@ -62,12 +68,16 @@ You need three inputs. Ask only for what you cannot find yourself.
 Read existing data first, so you neither repeat nor contradict earlier work:
 
 - **Without an assignment ID:** call `list_work`. Its `jobs` are the queued assignments and the ones you already hold.
-- **With an assignment ID:** call `get_assignment {"id": "<job id>"}`. It returns `competitorId`, `scenarioId`, `brief`, `plan[]` (whose lines carry the scenario's plan, permissions, input and expected result), `state`, `checkpoints` and `blocker`. If `state` is `queued` and you are the executor, claim it with `accept_job {"id": "<job id>", "operationKey": "accept:<job id>"}`.
+- **With an assignment ID:** call `get_assignment {"id": "<job id>"}`. It returns `kind`, `competitorId`, `scenarioId`, `brief`, `plan[]` (whose lines carry the scenario's plan, permissions, input and expected result), `state`, `checkpoints` and `blocker`. If `state` is `queued` and you are the executor, claim it with `accept_job {"id": "<job id>", "operationKey": "accept:<job id>"}`.
+- **Do what the job's `kind` asks, no more** (a missing `kind` means `walkthrough`):
+  - `signup`: Steps 2 and 3 only. No observations, uploads or proposals. Close with `checkpoint_job` `"state": "completed"` and a summary of the plan you got, what it unlocks, its limits and how to sign in again. Never write down a password.
+  - `feature_comparison`: Steps 2 to 9 for every scenario in `list_work` that a free plan allows (`scenarioId` is `null`; the job covers all of this competitor's scenarios). Close with a summary that lists each feature, our product, the competitor and the evidence behind it, plus the competitor's features we don't track yet.
+  - `walkthrough`: Steps 2 to 9 for the job's one scenario.
 - `get_feature_comparison {"featureId": "...", "scenarioId": "..."}` returns one row per competitor, including our own product, with its existing observations or `not_tested`. This is your coverage table and your denominator.
 - Use `get_evidence {"id": "..."}` and `assess_evidence {"id": "..."}` on any existing observation you might extend or contradict.
 - `get_battlecard {"id": "card-<competitorId>"}` returns the current wording and `revision`. `card-<competitorId>` is the default ID; confirm it with `search`.
 
-**What MCP cannot create.** No MCP tool creates a competitor directly: suggest it through a competitor search and a person confirms it. No MCP tool creates features or scenarios. If one is missing, give the user the exact values to create in the PMM OS dashboard: the competitor's name and https website (when there is no open search); the feature's name and description; the scenario's name, mode, plan, permissions, input and expected result. Then carry on with the parts that don't depend on it. `build_test_plan` queues an assignment for an existing competitor and scenario; analyst, reviewer and admin roles can call it, but an executor cannot. For every field, ID rule, role and error code, see [references/pmm-os-mcp.md](references/pmm-os-mcp.md).
+**What MCP cannot create.** No MCP tool creates a competitor directly: suggest it through a competitor search and a person confirms it. No MCP tool creates features or scenarios. If one is missing, give the user the exact values to create in the PMM OS dashboard: the competitor's name and https website (when there is no open search); the feature's name and description; the scenario's name, mode, plan, permissions, input and expected result. Then carry on with the parts that don't depend on it. `start_walkthrough`, `start_feature_comparison` and `start_signup` queue a job for an existing competitor; analyst, reviewer and admin roles can call them, but an executor cannot. For every field, ID rule, role and error code, see [references/pmm-os-mcp.md](references/pmm-os-mcp.md).
 
 ## Step 2: Terms-of-service check, before any signup
 
@@ -187,7 +197,7 @@ Use the template in [references/run-log-and-report.md](references/run-log-and-re
 - the coach review notes;
 - blockers, and **what needs the user**: takeovers, features or scenarios to create, terms decisions, and proposals to review.
 
-With an assignment, close it with `checkpoint_job`: use `"state": "completed"` and a one-line summary, or `"state": "blocked"` with the specific blocker if work remains.
+With an assignment, close it with `checkpoint_job`: use `"state": "completed"` and a short summary (the person reads it with `check_job`), or `"state": "blocked"` with the specific blocker if work remains.
 
 If `.agents/research/evidence.md` exists, add one sourced line per observation under `## Competitive`, citing the PMM OS observation ID and the vendor URL, so other PMM OS skills can draw on it.
 
