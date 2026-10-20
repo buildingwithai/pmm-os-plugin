@@ -4,7 +4,7 @@
 
 **Turn a product brief into positioning, messaging, personas, pricing, competitive intel, and a full launch plan — then package the whole thing into a shippable, interactive launch kit. Without leaving your terminal.**
 
-A Claude Code / Codex plugin: **45 product-marketing, GTM & PLG skills**, **two built-in research engines**, a deep framework library, and a zero-dependency generator that turns strategy into an app.
+A Claude Code / Codex plugin: **46 product-marketing, GTM & PLG skills**, **two built-in research engines**, a deep framework library, and a zero-dependency generator that turns strategy into an app.
 
 ![PMM OS launch kit — a click-through of the workspace views](docs/images/launch-kit-demo.gif)
 
@@ -16,7 +16,7 @@ A Claude Code / Codex plugin: **45 product-marketing, GTM & PLG skills**, **two 
 
 Most "marketing AI" gives you a wall of generic advice. PMM OS gives you **decisions and artifacts**: it grounds every output in your product context, applies real frameworks (April Dunford positioning, JTBD personas, value-metric pricing, win/loss CI), holds a strict depth bar so nothing comes back as a one-line stub, and ends a launch with something you can actually hand to a team.
 
-It behaves like **one product**, not 45 band-aided prompts: shared context, one depth standard, one framework library, and a chain that always flows to a finished deliverable.
+It behaves like **one product**, not 46 band-aided prompts: shared context, one depth standard, one framework library, and a chain that always flows to a finished deliverable.
 
 ## The launch kit — what you actually ship
 
@@ -103,7 +103,7 @@ MBB working canon and field-researched one-pager formats:
 
 ## What's inside
 
-**45 skills**, organized as one system:
+**46 skills**, organized as one system:
 
 | Area | Skills |
 |---|---|
@@ -116,11 +116,11 @@ MBB working canon and field-researched one-pager formats:
 | **Launch & GTM** | `pmm-go-to-market` · `pmm-launch-brief` · `pmm-campaign-brief` · `pmm-feature-announcement` · `post-launch-learning-loop` |
 | **Sales & GTM engineering** | `sales-enablement` · `pmm-sales-narrative` · `pmm-outreach` · `gtm-account-research` · `gtm-icp-scoring` · `gtm-signal-campaign` · `gtm-weekly-context-update` |
 | **Content & SEO/AEO** | `pmm-content-writer` · `pmm-aeo-geo` · `osp-value-map` · `osp-content-optimizer` · `osp-technical-marketing` |
-| **Production** | `pmm-artifact-factory` · `pmm-launch-kit` · `prd-prototype-factory` · `pmm-coach` |
+| **Production** | `pmm-artifact-factory` · `pmm-launch-kit` · `prd-prototype-factory` · `pmm-coach` · `prove-it-works` |
 
 Three things make them work as a unit:
 
-- **A deep framework library** — ~76k lines of frameworks, worksheets, templates, checklists and glossaries across 9 domains (positioning, messaging, competitive intelligence, personas, pricing, product launch, rollout, sales enablement, strategic thinking). 43/45 skills cite the exact docs they apply.
+- **A deep framework library** — ~76k lines of frameworks, worksheets, templates, checklists and glossaries across 9 domains (positioning, messaging, competitive intelligence, personas, pricing, product launch, rollout, sales enablement, strategic thinking). 43/46 skills cite the exact docs they apply.
 - **One depth standard** — every section must be *specific, complete, reasoned, and evidenced* — never a generic one-liner. Enforced in the skills, the prompt hook, and a final QA gate. "Depth is not length" — it won't pad, it goes deeper.
 - **Smart routing** — sharpened, disambiguated triggers ("use this, not that") plus a hook that surfaces the right skills and always routes a launch to the interactive kit.
 
