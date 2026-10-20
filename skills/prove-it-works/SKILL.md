@@ -57,6 +57,8 @@ Tests then give a real pass or fail with no keys, accounts or cost.
 
 ## 4. Prove it with a real run
 
+- Before you change code, record a baseline: how it looks and behaves now, and how fast. Compare
+  against that baseline, not memory.
 - Run the tests, typecheck and lint. For a bug, reproduce it first, then show the same check
   passing.
 - Screenshot the product, not the tools. For each screen you add or change, a browser test
@@ -65,6 +67,12 @@ Tests then give a real pass or fail with no keys, accounts or cost.
   repo's CI takes screenshots, link the one that shows your change.
 - Look at the screenshots yourself. Check the change is visible, nothing nearby broke, and it
   works at phone width and in dark mode if the app has them.
+- Drive the app the way a person does: click, type, scroll, wait. A user-path test does not pass
+  because a script called an internal function, set storage, or clicked by JavaScript.
+- Check the browser console and network for new errors while the flow runs.
+- When a fake cannot stand in (a signed-in third-party site, a browser extension on a real page),
+  do a final live check in a real browser (for example Chrome DevTools MCP). Use fakes for
+  everything before that, so the live check is short.
 - A passing build, a mock, or "it should work" is not proof. If you could not run something,
   say so plainly and why.
 
@@ -73,7 +81,12 @@ Tests then give a real pass or fail with no keys, accounts or cost.
 - Re-read your own diff as a reviewer would. Remove extra explainer text and clutter you added.
 - For risky changes (sign-in, secrets, payments, anything that runs commands), run a security
   review and fix what it finds.
+- Keep screenshots, traces, logs, tokens and personal data out of the repo unless the repo says
+  otherwise.
+- Stop and report instead of improvising when the only way to pass is a shortcut, when you would
+  need a real person's private data, or when the change breaks something you were told not to touch.
 - Report in plain words:
+  - each check marked PASS, FAIL, BLOCKED (could not run, and why) or NOT RUN
   - what changed, with the screenshots
   - which checks ran and what they showed
   - which services were faked and how (existing, ready-made, built)
