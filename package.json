@@ -46,6 +46,7 @@
     ".codex-plugin/",
     ".agents/plugins/",
     "docs/images/",
+    ".mcp.json",
     "README.md",
     "LICENSE",
     "PRIVACY.md",

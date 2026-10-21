@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "pmm-os": {
+      "type": "http",
+      "url": "https://pmm-os-app-alpha.vercel.app/api/mcp"
+    }
+  }
+}

@@ -78,6 +78,12 @@ markdown alone is never the finish line.
 > Needs Claude Code **2.1.143+** (May 2026) or Codex with plugin support. On Codex, plugin hooks
 > stay inactive until you review and trust them — Codex will prompt you.
 
+**Your PMM OS workspace, inside Codex and Claude Code.** The plugin also adds the PMM OS
+connector: battlecards (shown as cards where the app supports them), search, the feature
+comparison, and starting work for your agent. Sign in once with `codex mcp login pmm-os` in
+Codex, or `/mcp` in Claude Code. On your own PMM OS address, copy the two commands from
+**Settings > Plugin** instead.
+
 ## The quality architecture (v3) — the consulting-grade bar
 
 v3 wires a consulting-grade operating discipline through the whole pipeline, distilled from the

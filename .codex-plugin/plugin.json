@@ -49,6 +49,7 @@
   ],
   "skills": "./skills/",
   "hooks": "./hooks/hooks.json",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "PMM OS",
     "shortDescription": "PMM, GTM & launch workflows",
