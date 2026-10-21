@@ -207,12 +207,12 @@ async function doctor() {
   process.exitCode = r.status ?? 1;
 }
 
-// --- research gateway (Pro "Research Intelligence") client wiring ---
-// Points the vendored engine's rerank at the PMM OS Cloud gateway, so the LLM
-// judge runs WITHOUT the member ever holding a real provider key. We reuse the
-// engine's redirectable provider slot: set the token + gateway URL in the
-// engine's own config (~/.config/last30days/.env). The real OpenAI key lives
-// only in the gateway's server env — never here.
+// --- research gateway client wiring ---
+// Points the vendored engine's rerank at PMM OS (<app>/api/research/rerank), so
+// the LLM judge runs on the person's agent model there, WITHOUT a provider key
+// on this computer. We reuse the engine's redirectable provider slot: set the
+// personal PMM OS key + gateway URL in the engine's own config
+// (~/.config/last30days/.env).
 const L30_CONFIG_DIR = join(HOME, '.config', 'last30days');
 const L30_ENV = join(L30_CONFIG_DIR, '.env');
 const GATEWAY_KEYS = ['LAST30DAYS_REASONING_PROVIDER', 'XAI_API_KEY', 'XAI_BASE_URL'];
@@ -235,9 +235,10 @@ function researchConnect() {
   const url = process.argv[3];
   const token = process.argv[4];
   if (!url || !token) {
-    log('\nUsage: npx pmm-os research-connect <gateway-url> <pmm-os-token>');
-    log('  e.g. npx pmm-os research-connect https://pmm-os-green.vercel.app/api/research/rerank pmmos_xxx');
-    log('\nThe token is YOUR PMM OS member credential. The real AI key stays server-side.');
+    log('\nUsage: npx pmm-os research-connect <pmm-os-address>/api/research/rerank <key>');
+    log('  Copy the exact command from PMM OS: Settings > Plugin.');
+    log('\nThe key is your personal PMM OS key. Ranking runs on your agent\'s model in PMM OS,');
+    log('so no AI key is kept on this computer.');
     process.exitCode = 1;
     return;
   }
@@ -262,7 +263,7 @@ function researchDisconnect() {
 }
 
 
-// --- cloud sync: push the current engagement to PMM OS Cloud ---
+// --- sync: send the current engagement to PMM OS (<app>/api/cloud/sync) ---
 // Reads what the plugin already produces in CWD: kit-content.json (the kit),
 // report.json (typed evidence, if present), .agents/research/runs (run meta).
 // Nothing fuzzy is parsed; structured files only.
@@ -270,8 +271,8 @@ async function cloudSync() {
   const url = process.argv[3];
   const token = process.argv[4];
   if (!url || !token) {
-    log('\nUsage: npx pmm-os sync <cloud-url> <sync-token>   (run from the engagement folder)');
-    log('  e.g. npx pmm-os sync https://pmm-os-green.vercel.app your-token');
+    log('\nUsage: npx pmm-os sync <pmm-os-address> <key>   (run from the engagement folder)');
+    log('  Copy the exact command from PMM OS: Settings > Plugin.');
     process.exitCode = 1;
     return;
   }
@@ -331,7 +332,9 @@ async function cloudSync() {
       return;
     }
     ok('synced — kit v' + data.kitVersion + ', ' + data.evidenceStored + ' evidence records stored');
-    log('Open it in the cloud workspace once you sign in.');
+    log(data.page?.title
+      ? 'Open PMM OS: the kit is the page "' + data.page.title + '" in your workspace.'
+      : 'Open it in PMM OS once you sign in.');
   } catch (err) {
     fail('could not reach ' + endpoint + ' — ' + (err?.message || err));
     process.exitCode = 1;
@@ -363,8 +366,8 @@ else {
   log('  npx pmm-os setup       opt-in install of the full research engine stack');
   log('  npx pmm-os connect     connect + VERIFY your research sources (--json for machines)');
   log('  npx pmm-os doctor      environment + research-engine health (--deep = live smoke test)');
-  log('  npx pmm-os sync <url> <token>               push this engagement to PMM OS Cloud');
-  log('  npx pmm-os research-connect <url> <token>   connect Pro Research Intelligence (gateway rerank)');
+  log('  npx pmm-os sync <url> <key>                 send this launch kit and its evidence to PMM OS');
+  log('  npx pmm-os research-connect <url> <key>     rank research with your PMM OS agent\'s model');
   log('  npx pmm-os research-disconnect              revert to local heuristic ranking');
   log('\nDocs: https://github.com/buildingwithai/pmm-os');
 }
