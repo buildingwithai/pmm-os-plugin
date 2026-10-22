@@ -80,7 +80,9 @@ markdown alone is never the finish line.
 
 **Your PMM OS workspace, inside Codex and Claude Code.** The plugin also adds the PMM OS
 connector: battlecards (shown as cards where the app supports them), search, the feature
-comparison, and starting work for your agent. Sign in once with `codex mcp login pmm-os` in
+comparison, starting work for your agent, and saving what you make here as a PMM OS page
+(`save_page`, `list_pages`), so a teardown or launch kit drafted in your terminal shows up for
+the whole team. Sign in once with `codex mcp login pmm-os` in
 Codex, or `/mcp` in Claude Code. On your own PMM OS address, copy the two commands from
 **Settings > Plugin** instead.
 
